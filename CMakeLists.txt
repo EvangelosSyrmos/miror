@@ -12,6 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   rospy
   std_msgs
+  rqt_gui
+  rqt_gui_py
+  rviz
 )
 
 ## System dependencies are found with CMake's conventions
