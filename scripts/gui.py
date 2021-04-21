@@ -1,89 +1,66 @@
 #!/usr/bin/env python2.7
+from __future__ import print_function
+from logging import info
 import kivy
 import os
+import sys
 from kivy.core import text
 import rospy
 import rospkg
 from kivy.app import App
-from kivy.uix.label import Label
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.lang import Builder
 from utils.waypoints_class import Waypoints
 
-class StartingPage(GridLayout):
+path = rospkg.RosPack().get_path('research')+'/scripts'+ '/TspGui.kv'
+Builder.load_file(path)
+
+class WaypointWindow(BoxLayout):
     def __init__(self, *args):
+        super(WaypointWindow, self).__init__(*args)
         global wp
-        global th
-        super(StartingPage, self).__init__(*args)
-        self.cols = 2
-        
-        #region Load previous values from file if exists, else pass
-        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' 
-        os.chdir(path) # Change directory
-        if os.path.isfile("gui_prev_values.txt"):
-            with open("gui_prev_values.txt", "r") as f:
-                d = f.read().split(",")
-                prev_num_of_wpoints = d[0]
+        self.pressed = False
+        self.num_of_wp = self.ids.waypoints_field.text
+        self.wp_info = self.ids.waypoint_info
+
+    def start_placing_waypoints(self):
+        global wp
+        self.num_of_wp = self.ids.waypoints_field.text
+        self.wp_info = self.ids.waypoint_info
+
+        if self.num_of_wp == '':
+            self.wp_info.text='[color=#FF0000]Insert a number to continue.[/color]'
+        elif self.num_of_wp == '1':
+            self.wp_info.text='[color=#FF0000]Number has to be > 1.[/color]'
         else:
-            prev_num_of_wpoints = ""
-        #endregion
+            temp_num = '[color=#50d0d9]'+str(self.num_of_wp)+'[/color]'
+            self.wp_info.text='[color=#00FF00]Place [/color]'+temp_num+'[color=#00FF00] waypoints in Rviz.[/color]'
+            self.pressed = True
+            wp = Waypoints(int(self.num_of_wp)) # Create Wp Object
 
-        #region Number of waypoints
-        self.add_widget(Label(text='Number of waypoints'))
-        self.number_of_waypoints = TextInput(text=prev_num_of_wpoints)
-        self.add_widget(self.number_of_waypoints)
-        #endregion
-
-        #region Create Waypoints
-        self.param_button = Button(text="Submit Parameters")
-        self.param_button.bind(on_press = self.create_waypoints)
-        self.add_widget(self.param_button)
-        #endregion
-
-        #region Save Waypoints
-        self.save_button = Button(text="Save Waypoints")
-        self.save_button.bind(on_press = self.save_waypoints)
-        self.add_widget(self.save_button)
-        #endregion
-
-    def create_waypoints(self, instance):
-        '''
-        Create instance of Waypoints
-        '''
-        global wp 
-        print("Creating Wp)")
-        try:
-            wp = Waypoints(int(self.number_of_waypoints.text))
-        except ValueError as e:
-            print(str(e))
-
-    def save_waypoints(self, instance):
-        '''
-        Save the old values for GUI and save Waypoints to CSV
-        '''
-        print("In save button")
+    def start_cost_matrix(self):
         global wp
-        global th
-        num_of_waypoints = self.number_of_waypoints.text
+        self.num_of_wp = self.ids.waypoints_field.text
+        self.wp_info = self.ids.waypoint_info
 
-        #region Load previous inputs
-        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' 
-        os.chdir(path) # Change directory
-        with open("gui_prev_values.txt", "w") as f:
-                f.write("{}".format(num_of_waypoints))
-        #endregion
+        if self.pressed and self.num_of_wp != '':
+            self.wp_info.text='[color=#71a381]Cost matrix created.[/color]'
+            self.pressed = False
+            wp.save_to_file() # Save all waypoints to CSV
+            wp.start_calculations() # Create cost matrix
+        else:
+            self.wp_info.text='[color=#FF0000]Create Waypoints in Rviz first.[/color]'
+            
 
-        wp.save_to_file() # Save all waypoints to CSV
-        wp.start_calculations()
-
-
-class GuiApp(App):
+class TspGuiApp(App):
     def build(self):
-        return StartingPage()
+        return WaypointWindow()
 
 
 if __name__ == '__main__':
-    rospy.init_node("gui_node")
-    GuiApp().run()
+    rospy.init_node('gui_node')
+    tsp = TspGuiApp()
+    tsp.run()
     rospy.spin()
+
+    

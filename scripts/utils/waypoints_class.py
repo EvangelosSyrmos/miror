@@ -194,5 +194,4 @@ class Waypoints(object):
         with open("cost_matrix.csv", "wb") as f:
             writer = csv.writer(f)
             writer.writerows(cost_list)
-            print("Done writing")
         #endregion

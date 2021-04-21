@@ -1,0 +1,88 @@
+<ExitButton@ButtonBehavior+Label>:
+    font_size: 16
+
+
+<WaypointWindow>:
+    id: waypoint_wn
+    orientation: 'vertical'
+    spacing: 10
+    space_x: self.size[0] / 3
+    size_x_2: self.size[0] / 2
+    canvas.before:
+        Color: 
+            rgba: (1, 1, 1, 1)
+        Rectangle: 
+            size: self.size
+            pos: self.pos
+    BoxLayout:
+        size_hint_y: None
+        height: 20
+        canvas.before:
+            Color: 
+                rgba: (0.06, 0.45, 0.45, 1)
+            Rectangle: 
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "Waypoints"
+            bold: True
+    BoxLayout:
+        orientation: 'vertical'
+        padding: waypoint_wn.space_x, 10
+        size_hint_y: None
+        height: 120
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 10
+            size_hint_y: None
+            height: 60
+            Label:
+                id: waypoint_info
+                text: ''
+                markup: True
+                bold: True
+                size_hint_y: None
+                height: 20
+            TextInput:
+                id: waypoints_field
+                hint_text: "Number of Waypoints"
+                multiline: False
+                focus: True
+                on_text_validate: root.start_placing_waypoints()
+        Label:
+            id: label_sp
+            size_hint_y: None
+            height: 20
+        BoxLayout:
+            #orientation: 'vertical'
+            spacing: 10
+            size_hint_y: None
+            height: 35
+            Button:
+                text: "Create waypoints"
+                background_color: (0.06, 0.45, 0.45, 1)
+                background_normal: ''
+                on_release: root.start_placing_waypoints()
+            Button:
+                text: "Calculate costs"
+                background_color: (0.06, 0.45, 0.45, 1)
+                background_normal: ''
+                on_release: root.start_cost_matrix()
+        Label:
+            id: sp2
+    BoxLayout:
+        size_hint_y: None
+        height: 20
+        canvas.before:
+            Color: 
+                rgba: (0.06, 0.45, 0.45, 1)
+            Rectangle: 
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "Traveling Salesman Algorithms"
+            bold: True
+            size_hint_x: 1.0
+    BoxLayout:
+        orientation: 'vertical'
+        padding: waypoint_wn.space_x, 10
