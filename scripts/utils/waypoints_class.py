@@ -5,11 +5,26 @@ from rospy.exceptions import ROSInitException, ROSInterruptException
 from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import PointStamped
 from .config_class import Config
+import nav_msgs.srv
+import math
+from std_msgs.msg import Float32, Header
+from geometry_msgs.msg import PoseStamped, Point, Pose, Quaternion
+from rospy.exceptions import ROSException
 import rospy
+import rospkg
+import csv
+import os
 
 
 class Waypoints(object):
-    def __init__(self):
+    '''
+    This class is responsible for creating a ROS topic connection with 
+    Visualize Markers from Rviz. The user can click on rviz to add all 
+    the desired waypoints, thus the class can calculate the path cost
+    by calling the ROS MakePlan Service. Saves the cost matrix in CSV
+    for future uses.
+    '''
+    def __init__(self, number_of_waypoints):
         cfg = Config() # Parse all parameters
 
         #region ROS_TOPIC 
@@ -21,9 +36,9 @@ class Waypoints(object):
 
         #region Marker Info
         self.__marker_z = cfg.AXIS_Z
-        self.__marker_type = cfg.TYPE 
+        self.__marker_type = 9
         self.__marker_frame_id = "map"
-        self.__marker_scale_all_axis = cfg.SCALE
+        self.__marker_scale_all_axis = 0.5
         self.__marker_id = 0
         self.__marker_action = 0
         self.__marker_color_a = cfg.A
@@ -31,22 +46,22 @@ class Waypoints(object):
         self.__marker_color_g = cfg.G
         self.__marker_color_b = cfg.B
         self.__marker_orientation_w = 1.0
-        self.MARKER_MAX = cfg.MAXIMUM_MARKERS
+        self.MARKER_MAX = number_of_waypoints
         self.marker_array = MarkerArray()
         #endregion
-
-        # self.delete_all_active_markers() # Delete all active markers
         
+    def save_to_file(self):
+        '''
+        Save Waypoints : ID, X, Y
+        '''
+        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+        os.chdir(path) # Change directory
 
-    # def delete_all_active_markers(self):
-    #     '''
-    #     Publishes action = 3 (DELETEALL) in marker topic,
-    #     to delete all active markers in RVIZ
-    #     '''
-    #     delete_marker = Marker()
-    #     delete_marker.action = 3
-    #     self.marker_array.markers.append(delete_marker)
-    #     self._pub_markers.publish(self.marker_array)
+        #region Save in TXT {ID, X, Y} 
+        with open("waypoints_information.txt", "w") as f:
+            for mr in self.marker_array.markers:
+                f.write("{},{},{}\n".format(mr.id, mr.pose.position.x, mr.pose.position.y))
+        #endregion   
 
     def click_point_cb(self, data):
         '''
@@ -73,8 +88,7 @@ class Waypoints(object):
         self.marker_array.markers.append(marker) # Add new Marker
         self._pub_markers.publish(self.marker_array)
         self.__marker_id += 1
-        
-
+  
     def create_marker(self, x, y):
         '''
         Create a marker of type Marker
@@ -100,8 +114,85 @@ class Waypoints(object):
             marker.text = str(self.__marker_id)
 
         return marker
+
+    def calculate_cost(self, poses):
+        '''
+        Calculates the euclidean distance from each consecutive point
+        and returns the cost
+        '''
+        sum = 0
+        for pose in poses:
+            sum += math.sqrt(math.pow(((pose.pose.position.x + 1)- (pose.pose.position.x)),2)
+                            + math.pow(((pose.pose.position.y + 1)- (pose.pose.position.y)),2))
+        return sum
+
+    def start_calculations(self):
+        '''
+        Connect to MakePlan service and save the path cost
+        for each waypoint in nested lists
+        '''
+        #region Wait for Move Base Service to respond
+        try:
+            rospy.wait_for_service('/move_base/make_plan', timeout=5.0)
+        except ROSException:
+            print("Service not responding.")
+        #endregion
+
+        #region Create a connection with the service
+        try:
+            get_plan = rospy.ServiceProxy('/move_base/make_plan', nav_msgs.srv.GetPlan)
+        except rospy.service.ServiceException as e:
+            print("Service failed {}".format(e))
+        #endregion
+
+        #region Loop over each Waypoint to get the Cost
+        cost_list = []
+        for mr_start in self.marker_array.markers:
+            inner_list = []
+            for mr_goal in self.marker_array.markers:
+                if int(mr_start.id) == int(mr_goal.id):
+                    cost = 0.0
+                    inner_list.append(cost)
+                else:
+                    start = PoseStamped()
+                    start.header.frame_id = "map"
+                    start.header.stamp = rospy.Time.now()
+                    start.pose.position = Point(mr_start.pose.position.x, mr_start.pose.position.y, 0)
+
+                    goal = PoseStamped()
+                    goal.header.frame_id = "map"
+                    goal.header.stamp = rospy.Time.now()
+                    goal.pose.position = Point(mr_goal.pose.position.x, mr_goal.pose.position.y, 0)
+
+                    tolerance = Float32()
+                    tolerance = 0.2
+
+                    # Create a Reqeust to the service
+                    req = nav_msgs.srv.GetPlanRequest(start, goal, tolerance)
+
+                    # Get the response with all the points
+                    resp = get_plan(req)
+                    # print("Poits {}".format(len(resp.plan.poses)))
+                    
+                    # Calculate path's total cost 
+                    cost = self.calculate_cost(resp.plan.poses)
+                    # print("Cost: {}".format(cost))
+                    inner_list.append(cost)
+            cost_list.append(inner_list)
+        #endregion
+
+        self.save_cost_matrix(cost_list) # Save the Cost Matrix in CSV 
     
-    def start_cacl(self):
-        print("start calc")
-        print("The length is", len(self.marker_array.markers))
-        print(self.marker_array.markers)
+    def save_cost_matrix(self, cost_list):
+        '''
+        Dump the cost matrix from all the Waypoints in order
+        '''
+        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+        os.chdir(path) # Change directory
+
+        #region Save in CSV format
+        with open("cost_matrix.csv", "wb") as f:
+            writer = csv.writer(f)
+            writer.writerows(cost_list)
+            print("Done writing")
+        #endregion

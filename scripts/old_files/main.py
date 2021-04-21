@@ -13,9 +13,7 @@ def main():
     '''
     cfg = utils.Config()
     rospy.init_node(cfg.ROS_NODE_NAME)
-    pts = utils.Waypoints()
-    if len(pts.marker_array.markers) > 2:
-        print("Greater")
+    pts = utils.Waypoints(3)
     rospy.spin()
 
 if __name__ == '__main__':

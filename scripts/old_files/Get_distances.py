@@ -55,7 +55,7 @@ def main(x1, y1, x2, y2):
     print("The cost is {}".format(cost))
 
 if __name__ == '__main__':
-    x1 = -2.02
+    x1 = -0.5
     y1 = -0.38
     x2 = -1.99
     y2 = -0.45

@@ -8,7 +8,7 @@ class Config(object):
     ''' Parse the args and values '''
     def __init__(self):
         config = configparser.ConfigParser()
-        config.read(os.path.dirname(os.path.abspath(__file__)) + '/config.ini')
+        config.read(os.path.dirname(os.path.abspath(__file__)) + '/reusables/config.ini')
 
         #region ROS
         self.ROS_NODE_NAME = str(config['ROS']['ROS_NODE_NAME'])

@@ -1,0 +1,3 @@
+<launch>
+    <node name="tsp_gui" pkg="research" type="gui.py" output="screen" />
+</launch>
