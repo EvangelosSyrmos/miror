@@ -1,89 +1,128 @@
 #!/usr/bin/env python2.7
+from __future__ import print_function
+from logging import info
 import kivy
 import os
+import sys
+from subprocess import call
 from kivy.core import text
 import rospy
 import rospkg
 from kivy.app import App
-from kivy.uix.label import Label
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.lang import Builder
 from utils.waypoints_class import Waypoints
 
-class StartingPage(GridLayout):
+path = rospkg.RosPack().get_path('research')+'/scripts'+ '/TspGui.kv'
+Builder.load_file(path)
+
+
+class WaypointWindow(BoxLayout):
+
     def __init__(self, *args):
+        super(WaypointWindow, self).__init__(*args)
         global wp
-        global th
-        super(StartingPage, self).__init__(*args)
-        self.cols = 2
-        
-        #region Load previous values from file if exists, else pass
-        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' 
+        #region Write empty file of aglos
+        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
         os.chdir(path) # Change directory
-        if os.path.isfile("gui_prev_values.txt"):
-            with open("gui_prev_values.txt", "r") as f:
-                d = f.read().split(",")
-                prev_num_of_wpoints = d[0]
+        with open('run_algos.txt', 'w') as f:
+            f.write("")
+        #endregion
+        self.pressed_wp = False
+        self.pressed_algo = False
+        self.num_of_wp = self.ids.waypoints_field.text
+        self.wp_info = self.ids.waypoint_info
+        self.algo_info = self.ids.algo_info
+        self.run_info = self.ids.run_info
+        self.checkboxes = []
+    
+    def checkbox_click(self, instance, value, algo):
+        '''
+        Updates the list of algorithms to run
+        '''
+        self.algo_info = self.ids.algo_info
+        if value:
+            self.checkboxes.append(algo)
         else:
-            prev_num_of_wpoints = ""
-        #endregion
+            self.checkboxes.remove(algo)
+        output = ', '.join([str(elem) for elem in self.checkboxes])
+        if not self.checkboxes:
+            self.algo_info.text=''
+        else:
+            temp = '[color=#00FF00]'+str(output)+ '[/color]'
+            self.algo_info.text = '[color=#50d0d9]Selected: [/color]'+ temp
 
-        #region Number of waypoints
-        self.add_widget(Label(text='Number of waypoints'))
-        self.number_of_waypoints = TextInput(text=prev_num_of_wpoints)
-        self.add_widget(self.number_of_waypoints)
-        #endregion
-
-        #region Create Waypoints
-        self.param_button = Button(text="Submit Parameters")
-        self.param_button.bind(on_press = self.create_waypoints)
-        self.add_widget(self.param_button)
-        #endregion
-
-        #region Save Waypoints
-        self.save_button = Button(text="Save Waypoints")
-        self.save_button.bind(on_press = self.save_waypoints)
-        self.add_widget(self.save_button)
-        #endregion
-
-    def create_waypoints(self, instance):
+    def run_algorithms(self):
+        ''' 
+        Run all selected algorithms, or users
         '''
-        Create instance of Waypoints
-        '''
-        global wp 
-        print("Creating Wp)")
-        try:
-            wp = Waypoints(int(self.number_of_waypoints.text))
-        except ValueError as e:
-            print(str(e))
+        self.algo_info = self.ids.algo_info
 
-    def save_waypoints(self, instance):
-        '''
-        Save the old values for GUI and save Waypoints to CSV
-        '''
-        print("In save button")
+        if not self.checkboxes:
+            #region Empty file
+            path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+            os.chdir(path) # Change directory
+            with open('run_algos.txt', 'w') as f:
+                f.write("")
+            #endregion
+            self.algo_info.text='[color=#FF0000]Select or insert algorithm.[/color]'
+        else:
+            #region Fill file
+            path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+            os.chdir(path) # Change directory
+            with open('run_algos.txt', 'w') as f:
+                for elem in self.checkboxes:
+                    f.write("{}\n".format(elem))
+            #endregion
+            self.pressed_algo = True
+            print("Running algorithms,", self.checkboxes)
+            path = rospkg.RosPack().get_path('research')+'/scripts/utils/algorithms/' # Find the ROS Package Path
+            os.chdir(path) # Change directory
+            run_algorithms_file = call("python3 or_tools.py", shell=True)
+
+    def move_robot(self):
+        self.run_info = self.ids.run_info
+        if self.pressed_algo:
+            self.run_info.text='[color=#0010FF]Executing selected algorithms.[/color]'
+        else:
+            self.run_info.text='[color=#FF0000]Run algorithms first.[/color]'
+            
+    def start_placing_waypoints(self):
         global wp
-        global th
-        num_of_waypoints = self.number_of_waypoints.text
+        self.num_of_wp = self.ids.waypoints_field.text
+        self.wp_info = self.ids.waypoint_info
 
-        #region Load previous inputs
-        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' 
-        os.chdir(path) # Change directory
-        with open("gui_prev_values.txt", "w") as f:
-                f.write("{}".format(num_of_waypoints))
-        #endregion
+        if self.num_of_wp == '':
+            self.wp_info.text='[color=#FF0000]Insert a number to continue.[/color]'
+        elif self.num_of_wp == '1':
+            self.wp_info.text='[color=#FF0000]Number has to be > 1.[/color]'
+        else:
+            temp_num = '[color=#101000]'+str(self.num_of_wp)+'[/color]'
+            self.wp_info.text='[color=#0010FF]Place [/color]'+temp_num+'[color=#0010FF] waypoints in Rviz.[/color]'
+            self.pressed_wp= True
+            wp = Waypoints(int(self.num_of_wp)) # Create Wp Object
 
-        wp.save_to_file() # Save all waypoints to CSV
-        wp.start_calculations()
+    def start_cost_matrix(self):
+        global wp
+        self.num_of_wp = self.ids.waypoints_field.text
+        self.wp_info = self.ids.waypoint_info
+        if self.pressed_wp and self.num_of_wp != '':
+            self.wp_info.text='[color=#71a381]Cost matrix created.[/color]'
+            self.pressed_wp = False
+            wp.save_to_file() # Save all waypoints to CSV
+            wp.start_calculations() # Create cost matrix
+        else:
+            self.wp_info.text='[color=#FF0000]Create Waypoints in Rviz first.[/color]'
+            
 
-
-class GuiApp(App):
+class TspGuiApp(App):
     def build(self):
-        return StartingPage()
+        return WaypointWindow()
 
 
 if __name__ == '__main__':
-    rospy.init_node("gui_node")
-    GuiApp().run()
+    rospy.init_node('gui_node')
+    tsp = TspGuiApp()
+    tsp.run()
     rospy.spin()
+    

@@ -1,0 +1,277 @@
+<ExitButton@ButtonBehavior+Label>:
+    font_size: 16
+
+
+<WaypointWindow>:
+    id: waypoint_wn
+    orientation: 'vertical'
+    spacing: 10
+    space_x: self.size[0] / 3
+    canvas.before:
+        Color: 
+            rgba: (0.5, 1, 1, 1)
+        Rectangle: 
+            size: self.size
+            pos: self.pos
+
+    BoxLayout:
+        size_hint_y: None
+        height: 20
+        canvas.before:
+            Color: 
+                rgba: (0.06, 0.45, 0.45, 1)
+            Rectangle: 
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "Waypoints"
+            bold: True
+    BoxLayout:
+        orientation: 'vertical'
+        padding: waypoint_wn.space_x, 10
+        size_hint_y: None
+        height: 120
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 10
+            size_hint_y: None
+            height: 60
+            Label:
+                id: waypoint_info
+                text: ''
+                font_size: 20
+                markup: True
+                bold: True
+                size_hint_y: None
+                height: 20
+            TextInput:
+                id: waypoints_field
+                hint_text: "Number of Waypoints"
+                multiline: False
+                focus: True
+                on_text_validate: root.start_placing_waypoints()
+        Label:
+            id: label_sp
+            size_hint_y: None
+            height: 20
+        BoxLayout:
+            #orientation: 'vertical'
+            spacing: 10
+            size_hint_y: None
+            height: 35
+            Button:
+                text: "Create waypoints"
+                background_color: (0.06, 0.45, 0.45, 1)
+                background_normal: ''
+                on_release: root.start_placing_waypoints()
+            Button:
+                text: "Calculate costs"
+                background_color: (0.06, 0.45, 0.45, 1)
+                background_normal: ''
+                on_release: root.start_cost_matrix()
+        Label:
+            id: sp2
+    BoxLayout:
+        size_hint_y: None
+        height: 20
+        canvas.before:
+            Color: 
+                rgba: (0.06, 0.45, 0.45, 1)
+            Rectangle: 
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "Traveling Salesman Algorithms"
+            bold: True
+    BoxLayout:
+        orientation: 'vertical'
+        padding: waypoint_wn.space_x, 10
+        size_hint_y: None
+        height: 60
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 10
+            size_hint_y: None
+            height: 60
+            Label:
+                id: algo_info
+                text: ''
+                markup: True
+                bold: True
+                size_hint_y: None
+                height: 20
+            TextInput:
+                id: algo_field
+                hint_text: "Insert your algorithm file name"
+                multiline: False
+                #focus: True
+                #on_text_validate: root.start_placing_waypoints()
+        Label:
+            id: sp3
+    BoxLayout:
+        size_hint_y: None
+        height: 100
+        GridLayout:
+            padding: 10
+            cols: 2
+            canvas.before:
+                Color:
+                    rgba: (0.5, 0.8, 0.8, 1)
+                    #rgba: (214/255, 255/255, 230/255, 1)
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            
+            Label:
+                text: 'Christoforides'
+                #bold: True
+                font_size: 20
+                #background_color_algo1: (214/255, 255/255, 230/255, 1)
+                background_color_algo1: (0.5, 0.8, 0.8, 1)
+                text_color_algo1: (0, 0, 0, 1)
+                canvas.before:
+                    Color: 
+                        rgba: self.background_color_algo1
+                    Rectangle: 
+                        size: self.size
+                        pos: self.pos
+                color: self.text_color_algo1
+            BoxLayout:    
+                CheckBox:
+                    on_active: root.checkbox_click(self, self.active, "christoforides")
+                    canvas.before:
+                        Color: 
+                            rgb: (1, 0, 0)
+                        Rectangle:
+                            pos: self.center_x -8 , self.center_y -8
+                            size: [16, 16]
+                        Color:
+                            rgb: (0, 0, 0)
+                        Rectangle:
+                            pos: self.center_x -7 , self.center_y - 7
+                            size: [14, 14]
+            Label:
+
+            Label:
+
+            Label:
+                text: '2-OPT'
+                #bold: True
+                font_size: 20
+                background_color_algo2: (10/255, 255/255, 230/255, 1)
+                text_color_algo2: (0, 0, 0, 1)
+                canvas.before:
+                    Color: 
+                        rgba: self.background_color_algo1
+                    Rectangle: 
+                        size: self.size
+                        pos: self.pos
+                color: self.text_color_algo2
+            BoxLayout:    
+                CheckBox:
+                    active: False
+                    on_active: root.checkbox_click(self, self.active, "2opt")
+                    canvas.before:
+                        Color: 
+                            rgb: (1, 0, 0)
+                        Rectangle:
+                            pos: self.center_x -8 , self.center_y -8
+                            size: [16, 16]
+                        Color:
+                            rgb: (0, 0, 0)
+                        Rectangle:
+                            pos: self.center_x -7 , self.center_y - 7
+                            size: [14, 14]
+            Label:
+
+            Label:
+
+            Label:
+                text: '3-OPT'
+                #bold: True
+                font_size: 20
+                background_color_algo3: (214/255, 255/255, 230/255, 1)
+                text_color_algo3: (0, 0, 0, 1)
+                canvas.before:
+                    Color: 
+                        rgba: self.background_color_algo1
+                    Rectangle: 
+                        size: self.size
+                        pos: self.pos
+                color: self.text_color_algo3
+            BoxLayout:
+                CheckBox:
+                    active: False
+                    on_active: root.checkbox_click(self, self.active, "3opt")
+                    canvas.before:
+                        Color: 
+                            rgb: (1, 0, 0)
+                        Rectangle:
+                            pos: self.center_x -8 , self.center_y -8
+                            size: [16, 16]
+                        Color:
+                            rgb: (0, 0, 0)
+                        Rectangle:
+                            pos: self.center_x -7 , self.center_y - 7
+                            size: [14, 14]
+    Label:
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        size_hint_y: None
+        height: 40
+        BoxLayout:
+            orientation: 'vertical'
+            padding: waypoint_wn.space_x, 10
+    BoxLayout:
+        orientation: 'vertical'
+        padding: waypoint_wn.space_x, 10
+        #size_hint_y: None
+        #height: 40
+        Label:
+            id: algo_info
+            text: ''
+            font_size: 20
+            markup: True
+            bold: True
+            size_hint_y: None
+            height: 20
+        Label:
+
+        Label:
+
+        Label:
+            id: run_info
+            text: ''
+            font_size: 20
+            markup: True
+            bold: True
+            size_hint_y: None
+            height: 20
+
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: waypoint_wn.space_x, 10
+        size_hint_y: None
+        height: 120
+        BoxLayout:
+            #orientation: 'vertical'
+            spacing: 10
+            size_hint_y: None
+            height: 35
+            Button:
+                text: "Run Algorithms"
+                background_color: (0.06, 0.45, 0.45, 1)
+                background_normal: ''
+                on_release: root.run_algorithms()
+            Button:
+                text: "Move Robot"
+                background_color: (0.06, 0.45, 0.45, 1)
+                background_normal: ''
+                on_release: root.move_robot()
+        Label:
+        
+    #BoxLayout:
+

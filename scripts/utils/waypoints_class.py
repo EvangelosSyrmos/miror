@@ -190,9 +190,16 @@ class Waypoints(object):
         path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
         os.chdir(path) # Change directory
 
+        #region Format cost matrix as diagonal
+        for i in range(len(cost_list)):
+            for j in range(i):
+                av = (float(cost_list[i][j]) + float(cost_list[j][i]))/ 2
+                cost_list[i][j] = av
+                cost_list[j][i] = av
+        #endregion
+
         #region Save in CSV format
         with open("cost_matrix.csv", "wb") as f:
             writer = csv.writer(f)
             writer.writerows(cost_list)
-            print("Done writing")
         #endregion
