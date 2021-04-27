@@ -8,7 +8,7 @@
     spacing: 10
     space_x: self.size[0] / 3
     canvas.before:
-        Color: 
+        Color:
             rgba: (0.5, 1, 1, 1)
         Rectangle: 
             size: self.size
@@ -52,8 +52,20 @@
                 on_text_validate: root.start_placing_waypoints()
         Label:
             id: label_sp
+            color: 1, 0, 1, 1
+            canvas.before:
+                Color:
+                    rgba: (0, 0, 0, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            text: '1st Waypoint must be on AGV'
+            markup: True
+            bold: True
             size_hint_y: None
             height: 20
+        Label:
+
         BoxLayout:
             #orientation: 'vertical'
             spacing: 10
@@ -272,6 +284,6 @@
                 background_normal: ''
                 on_release: root.move_robot()
         Label:
-        
+
     #BoxLayout:
 

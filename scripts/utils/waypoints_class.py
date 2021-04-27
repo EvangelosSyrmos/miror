@@ -26,6 +26,8 @@ class Waypoints(object):
     '''
     def __init__(self, number_of_waypoints):
         cfg = Config() # Parse all parameters
+        
+        self.cost_list = []
 
         #region ROS_TOPIC 
         self.__clicked_topic = '/clicked_point'
@@ -146,12 +148,11 @@ class Waypoints(object):
         #endregion
 
         #region Loop over each Waypoint to get the Cost
-        cost_list = []
         for mr_start in self.marker_array.markers:
             inner_list = []
             for mr_goal in self.marker_array.markers:
                 if int(mr_start.id) == int(mr_goal.id):
-                    cost = 0.0
+                    cost = 0
                     inner_list.append(cost)
                 else:
                     start = PoseStamped()
@@ -178,10 +179,10 @@ class Waypoints(object):
                     cost = self.calculate_cost(resp.plan.poses)
                     # print("Cost: {}".format(cost))
                     inner_list.append(cost)
-            cost_list.append(inner_list)
+            self.cost_list.append(inner_list)
         #endregion
 
-        self.save_cost_matrix(cost_list) # Save the Cost Matrix in CSV 
+        self.save_cost_matrix(self.cost_list) # Save the Cost Matrix in CSV 
     
     def save_cost_matrix(self, cost_list):
         '''
@@ -191,15 +192,18 @@ class Waypoints(object):
         os.chdir(path) # Change directory
 
         #region Format cost matrix as diagonal
-        for i in range(len(cost_list)):
+        for i in range(len(self.cost_list)):
             for j in range(i):
-                av = (float(cost_list[i][j]) + float(cost_list[j][i]))/ 2
-                cost_list[i][j] = av
-                cost_list[j][i] = av
+                av = int(round((float(self.cost_list[i][j]) + float(self.cost_list[j][i]))/ 2))
+                self.cost_list[i][j] = av
+                self.cost_list[j][i] = av
         #endregion
 
         #region Save in CSV format
         with open("cost_matrix.csv", "wb") as f:
             writer = csv.writer(f)
-            writer.writerows(cost_list)
+            writer.writerows(self.cost_list)
         #endregion
+    
+    def get_cost_list(self):
+        return self.cost_list

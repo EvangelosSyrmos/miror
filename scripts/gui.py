@@ -4,6 +4,7 @@ from logging import info
 import kivy
 import os
 import sys
+import csv
 from subprocess import call
 from kivy.core import text
 import rospy
@@ -12,6 +13,7 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from utils.waypoints_class import Waypoints
+from algorithms.google import Google
 
 path = rospkg.RosPack().get_path('research')+'/scripts'+ '/TspGui.kv'
 Builder.load_file(path)
@@ -22,12 +24,15 @@ class WaypointWindow(BoxLayout):
     def __init__(self, *args):
         super(WaypointWindow, self).__init__(*args)
         global wp
+        global gl 
+
         #region Write empty file of aglos
         path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
         os.chdir(path) # Change directory
         with open('run_algos.txt', 'w') as f:
             f.write("")
         #endregion
+
         self.pressed_wp = False
         self.pressed_algo = False
         self.num_of_wp = self.ids.waypoints_field.text
@@ -56,6 +61,8 @@ class WaypointWindow(BoxLayout):
         ''' 
         Run all selected algorithms, or users
         '''
+        global gl
+        global wp
         self.algo_info = self.ids.algo_info
 
         if not self.checkboxes:
@@ -74,11 +81,22 @@ class WaypointWindow(BoxLayout):
                 for elem in self.checkboxes:
                     f.write("{}\n".format(elem))
             #endregion
+            
             self.pressed_algo = True
             print("Running algorithms,", self.checkboxes)
-            path = rospkg.RosPack().get_path('research')+'/scripts/utils/algorithms/' # Find the ROS Package Path
-            os.chdir(path) # Change directory
-            run_algorithms_file = call("python3 or_tools.py", shell=True)
+            # path = rospkg.RosPack().get_path('research')+'/scripts/algorithms/' # Find the ROS Package Path
+            # os.chdir(path) # Change directory
+            try:
+                gl = Google(wp.get_cost_list())
+            except:
+                os.chdir('..')
+                cur_path = os.getcwd()
+                os.chdir(cur_path + '/reusables')
+                data = []
+                with open("cost_matrix.csv") as f:
+                    reader = csv.reader(f)
+                    data = list(reader)
+                gl = Google(data)
 
     def move_robot(self):
         self.run_info = self.ids.run_info
