@@ -5,6 +5,7 @@ from ortools.constraint_solver import pywrapcp
 import sys
 import time
 import random
+import matplotlib.pyplot as plt
 
 
 class Selector(object):
@@ -28,9 +29,11 @@ class Selector(object):
             if algo.calc_time < self.best_timer.calc_time:
                 self.best_timer = algo
 
-        print("Best distance --> {}".format(self.best_distance))
-        print("Best time --> {}".format(self.best_timer))
+        # print("Best distance --> {}".format(self.best_distance))
+        # print("Best time --> {}".format(self.best_timer))
         #endregion
+
+
         
     def get_best_path(self):
         choices = [self.best_distance, self.best_timer]
@@ -48,14 +51,8 @@ class Google(object):
 
         self.routes = []
 
-        #region Typecasting distance matrix --> Int
         temp = []
-        for row in distance_matrix:
-            temp_inner = []
-            for col in row:
-                temp_inner.append(int(col))
-            temp.append(temp_inner)
-        #endregion
+        temp = [[int(col) for col in row]for row in distance_matrix] # Typecasting distance matrix --> Int
 
         #region Create Data model
         self.data = {}
@@ -111,11 +108,11 @@ class Google(object):
         #region Optimization algorithms
         # self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.AUTOMATIC)
         # self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.GREEDY_DESCENT)
-        self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
+        # self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
         # self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.SIMULATED_ANNEALING)
         # self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.TABU_SEARCH)
         # self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.OBJECTIVE_TABU_SEARCH)
-        self.search_parameters.time_limit.seconds = 10
+        # self.search_parameters.time_limit.seconds = 10
         #endregion
 
         # Solve the problem.
@@ -168,6 +165,7 @@ class Google(object):
             routes.append(route)
         return routes
     
-    def __repr__(self):
-        output = repr(self.name)+"__"+repr(self._distance)+"__"+repr(round(self.calc_time, 3))
-        return output
+    # def __repr__(self):
+    #     output = repr(self.name)
+    #     # output = repr(self.name)+"__"+repr(self._distance)+"__"+repr(round(self.calc_time, 3))
+    #     return output

@@ -1,6 +1,9 @@
 #!/usr/bin/env python2.7
 from __future__ import print_function
+import imp
+from importlib import import_module
 from logging import info
+from PIL.Image import ROTATE_270
 import kivy
 import os
 import sys
@@ -11,13 +14,13 @@ import rospkg
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
+import matplotlib.pyplot as plt
 from utils.waypoints_class import Waypoints
 from utils.base_class import MoveBase
 from algorithms.google import Selector
 
 path = rospkg.RosPack().get_path('research')+'/scripts'+ '/TspGui.kv'
 Builder.load_file(path)
-
 
 class WaypointWindow(BoxLayout):
 
@@ -95,6 +98,18 @@ class WaypointWindow(BoxLayout):
                 reader = csv.reader(f)
                 data = list(reader)
             gl = Selector(data, self.checkboxes)
+            
+            #region Matplotlib window
+            name_list = [name.name for name in gl.alg_list]
+            time_list = [name.calc_time for name in gl.alg_list]
+            plt.barh(name_list, time_list)
+            plt.grid(True)
+            plt.xlabel("Seconds")
+            plt.title("Algorithm results")
+            plt.xticks(rotation = 45)
+            plt.yticks(rotation = 45)
+            plt.show()
+            #endregion
 
     def move_robot(self):
         """Call MoveBase to start moving robot to the goal """
@@ -134,7 +149,8 @@ class WaypointWindow(BoxLayout):
             wp.start_calculations() # Create cost matrix
         else:
             self.wp_info.text='[color=#FF0000]Create Waypoints in Rviz first.[/color]'
-            
+
+
 
 class TspGuiApp(App):
     def build(self):
