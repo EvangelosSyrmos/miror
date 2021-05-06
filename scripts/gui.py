@@ -5,7 +5,6 @@ import kivy
 import os
 import sys
 import csv
-from subprocess import call
 from kivy.core import text
 import rospy
 import rospkg
@@ -13,7 +12,8 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from utils.waypoints_class import Waypoints
-from algorithms.google import Google
+from utils.base_class import MoveBase
+from algorithms.google import Selector
 
 path = rospkg.RosPack().get_path('research')+'/scripts'+ '/TspGui.kv'
 Builder.load_file(path)
@@ -84,27 +84,30 @@ class WaypointWindow(BoxLayout):
             
             self.pressed_algo = True
             print("Running algorithms,", self.checkboxes)
-            # path = rospkg.RosPack().get_path('research')+'/scripts/algorithms/' # Find the ROS Package Path
-            # os.chdir(path) # Change directory
-            try:
-                gl = Google(wp.get_cost_list())
-            except:
-                os.chdir('..')
-                cur_path = os.getcwd()
-                os.chdir(cur_path + '/reusables')
-                data = []
-                with open("cost_matrix.csv") as f:
-                    reader = csv.reader(f)
-                    data = list(reader)
-                gl = Google(data)
+            # try:
+            #     gl = Google(wp.get_cost_list())
+            # except:
+            os.chdir('..')
+            cur_path = os.getcwd()
+            os.chdir(cur_path + '/reusables')
+            data = []
+            with open("cost_matrix.csv") as f:
+                reader = csv.reader(f)
+                data = list(reader)
+            gl = Selector(data, self.checkboxes)
 
     def move_robot(self):
+        """Call MoveBase to start moving robot to the goal """
+        global gl
+        global mb
         self.run_info = self.ids.run_info
         if self.pressed_algo:
-            self.run_info.text='[color=#0010FF]Executing selected algorithms.[/color]'
+            self.run_info.text='[color=#0010FF]Route completed.[/color]'
+            mb = MoveBase(gl.get_best_path())
+            # mb = MoveBase(gl.routes)
         else:
             self.run_info.text='[color=#FF0000]Run algorithms first.[/color]'
-            
+
     def start_placing_waypoints(self):
         global wp
         self.num_of_wp = self.ids.waypoints_field.text

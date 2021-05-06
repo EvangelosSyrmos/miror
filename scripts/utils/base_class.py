@@ -1,28 +1,41 @@
 #!/usr/bin/env python
 from __future__ import print_function
 from actionlib_msgs.msg import *
-from move_base_msg.msg import MoveBaseAction, MoveBaseGoal
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from geometry_msgs.msg import Point, PoseWithCovarianceStamped
 import actionlib
 import rospy
 
 
-class Base():
-    def __init__(self):
+class MoveBase():
+    def __init__(self, routes):
+
+        #region MoveBase
         self.__server = "move_base"
         self.__frame_id = "map"
         self.__amcl = "amcl_pose"
         self.__amcl = rospy.Subscriber(self.__amcl, PoseWithCovarianceStamped, self.__amcl_cb)
         self._connect()
+        #endregion
 
-    @staticmethod
-    def __frame_id(self, frame: str):
-        self.__frame_id = frame
+        #region Start moving robot
+        self.routes = routes
+        self.waypoints = self.get_waypoints()
+        #endregion
         
-    @staticmethod
-    def __server(self, server: str):
-        self.__server = server
+        # self.start_robot()
 
+    def start_robot(self):
+        """Move Robot in the Route list"""
+        for route in self.routes[1:]:
+            for waypoint in self.waypoints:
+                if route == waypoint[0]:
+                    status = self.goal(float(waypoint[1]), float(waypoint[2]))
+        if status:
+            return True
+        else:
+            return False
+    
     def _connect(self):
         ''' Connect with Move Base action Server '''
         self._ac = actionlib.SimpleActionClient(self.__server, MoveBaseAction)
@@ -34,25 +47,29 @@ class Base():
         self.x_pose
         self.y_pose
 
-    def goal(self, x:float, y: float, z: float):
+    def goal(self, x, y):
         ''' Send to goal '''
-
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = self.__frame_id
         goal.target_pose.header.stamp = rospy.Time.now()
 
-        goal.target_pose.pose.position = Point(x, y, z)
+        goal.target_pose.pose.position = Point(x, y, 0)
         goal.target_pose.pose.orientation.x = 0.0
         goal.target_pose.pose.orientation.y = 0.0
         goal.target_pose.pose.orientation.z = 0.0
         goal.target_pose.pose.orientation.w = 1.0
 
         self._ac.send_goal(goal) # Send to goal
-        
+        self._ac.wait_for_result(rospy.Duration(60))
+
         # region Waii for execution
         if self._ac.get_state() == GoalStatus.SUCCEEDED:
             return True
         else:
             return False
 
-
+    def get_waypoints(self):
+        """Collect all the waypoint data from file"""
+        with open('waypoints_information.txt', 'r') as file:
+            l = [[float(num) for num in line.split(',')] for line in file]
+        return l 
