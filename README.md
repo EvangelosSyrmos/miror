@@ -1,4 +1,4 @@
-# Application for TSP testing
+# Application for TSP algorithms
 This application was created having a main purpose to integrate Waypoints inside ROS visualized in Rviz,to run Google OR Tools build in TSP algorithms and One by the user.
 
 ## Description
