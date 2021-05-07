@@ -1,6 +1,2 @@
 Automatic
 Savings
-Christofides
-PCA
-LCA
-GCA

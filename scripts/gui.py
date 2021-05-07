@@ -8,6 +8,8 @@ import kivy
 import os
 import sys
 import csv
+import time
+import importlib
 from kivy.core import text
 import rospy
 import rospkg
@@ -27,7 +29,8 @@ class WaypointWindow(BoxLayout):
     def __init__(self, *args):
         super(WaypointWindow, self).__init__(*args)
         global wp
-        global gl 
+        global gl
+        global imported_class
 
         #region Write empty file of aglos
         path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
@@ -38,12 +41,34 @@ class WaypointWindow(BoxLayout):
 
         self.pressed_wp = False
         self.pressed_algo = False
+        self.import_once = True
         self.num_of_wp = self.ids.waypoints_field.text
         self.wp_info = self.ids.waypoint_info
         self.algo_info = self.ids.algo_info
+        self.user_class = self.ids.user_class.text
         self.run_info = self.ids.run_info
         self.checkboxes = []
+
+    def make_file(self, name):
+        """ Write the import for the module """
+        file_name = "__init__.py"
+        self.import_once = False
+        #region Save olf file imports
+        with open(file_name, 'r') as f:
+            self.old_file_imports = f.read()
+        #endregion
+
+        with open(file_name, 'a') as f:
+            f.write('\nfrom {} import {}'.format('.'+ name.lower(), name.title()))
     
+    def reset_init_file(self):
+        """ Reset the file module at the start of the application"""
+        file_name = "__init__.py"
+        os.chdir('../..')
+        os.chdir('algorithms')
+        with open(file_name, 'w') as f:
+            f.write(self.old_file_imports)
+
     def checkbox_click(self, instance, value, algo):
         '''
         Updates the list of algorithms to run
@@ -66,9 +91,13 @@ class WaypointWindow(BoxLayout):
         '''
         global gl
         global wp
+        global imported_class
         self.algo_info = self.ids.algo_info
+        self.user_class = self.ids.user_class.text
+        # self.reset_init_file() # Reset the Init file
 
-        if not self.checkboxes:
+        if not self.checkboxes and not self.user_class != None:
+            
             #region Empty file
             path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
             os.chdir(path) # Change directory
@@ -76,7 +105,33 @@ class WaypointWindow(BoxLayout):
                 f.write("")
             #endregion
             self.algo_info.text='[color=#FF0000]Select or insert algorithm.[/color]'
-        else:
+        
+        if self.user_class != None:
+            #region Users Class input
+            filepath = os.getcwd()
+            folder = 'algorithms'
+            os.chdir('../..')
+            os.chdir('{}'.format(folder))
+            if self.import_once:
+                self.make_file(self.user_class) #import class in init.py file
+            full_name = folder + "." + self.user_class
+            os.chdir('..')
+            module = importlib.import_module(full_name)
+            the_class = getattr(module, self.user_class.title())
+
+            #region Read disctance matrix
+            print(os.getcwd())
+            cur_path = os.getcwd() + '/utils' + '/reusables'
+            os.chdir(cur_path)
+            data = []
+            with open("cost_matrix.csv") as f:
+                reader = csv.reader(f)
+                data = list(reader)
+            #endregion
+            imported_class = the_class(data) # Create object
+            #endregion
+
+        if self.checkboxes:
             #region Fill file
             path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
             os.chdir(path) # Change directory
@@ -87,9 +142,6 @@ class WaypointWindow(BoxLayout):
             
             self.pressed_algo = True
             print("Running algorithms,", self.checkboxes)
-            # try:
-            #     gl = Google(wp.get_cost_list())
-            # except:
             os.chdir('..')
             cur_path = os.getcwd()
             os.chdir(cur_path + '/reusables')
@@ -99,18 +151,25 @@ class WaypointWindow(BoxLayout):
                 data = list(reader)
             gl = Selector(data, self.checkboxes)
             
-            #region Matplotlib window
-            name_list = [name.name for name in gl.alg_list]
-            time_list = [name.calc_time for name in gl.alg_list]
-            plt.barh(name_list, time_list)
-            plt.grid(True)
-            plt.xlabel("Seconds")
-            plt.title("Algorithm results")
-            plt.xticks(rotation = 45)
-            plt.yticks(rotation = 45)
-            plt.show()
-            #endregion
-
+        #region Matplotlib window
+        name_list = [name.name for name in gl.alg_list]
+        time_list = [name.calc_time for name in gl.alg_list]
+        if self.user_class != None:
+            temp = self.user_class
+            name_list.append(temp.upper())
+            name_list = [name.encode('utf-8') for name in name_list]
+            temp = imported_class.calculation_time
+            time_list.append(temp)
+        plt.barh(name_list, time_list)
+        plt.grid(True)
+        plt.xlabel("Seconds")
+        plt.title("Algorithm results")
+        plt.xticks(rotation = 45)
+        plt.yticks(rotation = 45)
+        plt.show()
+        #endregion
+    
+            
     def move_robot(self):
         """Call MoveBase to start moving robot to the goal """
         global gl
@@ -154,8 +213,14 @@ class WaypointWindow(BoxLayout):
 
 class TspGuiApp(App):
     def build(self):
-        return WaypointWindow()
+        global wp 
+        wp = WaypointWindow()
+        return wp
 
+    def on_stop(self):
+        """ Clear the init file when app stops """
+        global wp
+        wp.reset_init_file()
 
 if __name__ == '__main__':
     rospy.init_node('gui_node')
