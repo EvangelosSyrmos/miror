@@ -64,11 +64,18 @@ class WaypointWindow(BoxLayout):
     def reset_init_file(self):
         """ Reset the file module at the start of the application"""
         file_name = "__init__.py"
-        os.chdir('../..')
-        os.chdir('algorithms')
         with open(file_name, 'w') as f:
             f.write(self.old_file_imports)
 
+    def show_histogram(self, list1, list2):
+        plt.barh(list1, list2)
+        plt.grid(True)
+        plt.xlabel("Seconds")
+        plt.title("Algorithm results")
+        plt.xticks(rotation = 45)
+        plt.yticks(rotation = 45)
+        plt.show()
+    
     def checkbox_click(self, instance, value, algo):
         '''
         Updates the list of algorithms to run
@@ -85,6 +92,17 @@ class WaypointWindow(BoxLayout):
             temp = '[color=#00FF00]'+str(output)+ '[/color]'
             self.algo_info.text = '[color=#50d0d9]Selected: [/color]'+ temp
 
+    def get_dist_matrix(self):
+        """ Reads the distance matrix"""
+        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' 
+        os.chdir(path)
+        data = []
+        with open("cost_matrix.csv") as f:
+            reader = csv.reader(f)
+            data = list(reader)
+        print("The data is", data)
+        return data
+
     def run_algorithms(self):
         ''' 
         Run all selected algorithms, or users
@@ -94,10 +112,14 @@ class WaypointWindow(BoxLayout):
         global imported_class
         self.algo_info = self.ids.algo_info
         self.user_class = self.ids.user_class.text
-        # self.reset_init_file() # Reset the Init file
 
-        if not self.checkboxes and not self.user_class != None:
-            
+        if not self.user_class:
+            print("User class empty")
+        else:
+            print("User Full: {}".format(self.user_class))
+
+        if len(self.checkboxes) == 0 and not self.user_class: #No Chechbox, No User
+            print("No Box, No User")
             #region Empty file
             path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
             os.chdir(path) # Change directory
@@ -105,70 +127,103 @@ class WaypointWindow(BoxLayout):
                 f.write("")
             #endregion
             self.algo_info.text='[color=#FF0000]Select or insert algorithm.[/color]'
-        
-        if self.user_class != None:
-            #region Users Class input
-            filepath = os.getcwd()
-            folder = 'algorithms'
-            os.chdir('../..')
-            os.chdir('{}'.format(folder))
-            if self.import_once:
-                self.make_file(self.user_class) #import class in init.py file
-            full_name = folder + "." + self.user_class
-            os.chdir('..')
-            module = importlib.import_module(full_name)
-            the_class = getattr(module, self.user_class.title())
-
-            #region Read disctance matrix
-            print(os.getcwd())
-            cur_path = os.getcwd() + '/utils' + '/reusables'
-            os.chdir(cur_path)
-            data = []
-            with open("cost_matrix.csv") as f:
-                reader = csv.reader(f)
-                data = list(reader)
-            #endregion
-            imported_class = the_class(data) # Create object
-            #endregion
-
-        if self.checkboxes:
-            #region Fill file
-            path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
-            os.chdir(path) # Change directory
-            with open('run_algos.txt', 'w') as f:
-                for elem in self.checkboxes:
-                    f.write("{}\n".format(elem))
-            #endregion
-            
+        else:
             self.pressed_algo = True
-            print("Running algorithms,", self.checkboxes)
-            os.chdir('..')
-            cur_path = os.getcwd()
-            os.chdir(cur_path + '/reusables')
-            data = []
-            with open("cost_matrix.csv") as f:
-                reader = csv.reader(f)
-                data = list(reader)
-            gl = Selector(data, self.checkboxes)
-            
-        #region Matplotlib window
-        name_list = [name.name for name in gl.alg_list]
-        time_list = [name.calc_time for name in gl.alg_list]
-        if self.user_class != None:
-            temp = self.user_class
-            name_list.append(temp.upper())
-            name_list = [name.encode('utf-8') for name in name_list]
-            temp = imported_class.calculation_time
-            time_list.append(temp)
-        plt.barh(name_list, time_list)
-        plt.grid(True)
-        plt.xlabel("Seconds")
-        plt.title("Algorithm results")
-        plt.xticks(rotation = 45)
-        plt.yticks(rotation = 45)
-        plt.show()
-        #endregion
-    
+            if not len(self.checkboxes) == 0 and self.user_class: # YES CBOX, YES USER
+                #region Checkboxes
+                path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+                os.chdir(path) # Change directory
+                with open('run_algos.txt', 'w') as f:
+                    for elem in self.checkboxes:
+                        f.write("{}\n".format(elem))
+                
+                print("Running algorithms,", self.checkboxes)
+                os.chdir('..')
+                cur_path = os.getcwd()
+                os.chdir(cur_path + '/reusables')
+                data = []
+                with open("cost_matrix.csv") as f:
+                    reader = csv.reader(f)
+                    data = list(reader)
+                gl = Selector(data, self.checkboxes)
+
+                name_list = [name.name for name in gl.alg_list]         # To Visualize
+                time_list = [name.calc_time for name in gl.alg_list]    # the data in plot
+                #endregion
+
+                #region User
+                path = rospkg.RosPack().get_path('research')+'/scripts/algorithms' 
+                os.chdir(path)
+                if self.import_once:
+                    self.make_file(self.user_class) #import class in init.py file
+                full_name = "algorithms" + "." + self.user_class
+                path = rospkg.RosPack().get_path('research')+'/scripts' 
+                os.chdir(path)
+                data = self.get_dist_matrix()
+                path = rospkg.RosPack().get_path('research')+'/scripts' 
+                os.chdir(path)
+                print(os.getcwd())
+                module = importlib.import_module(full_name)
+                the_class = getattr(module, self.user_class.title())
+                imported_class = the_class(data)
+
+                temp = self.user_class                                      # Visualize 
+                name_list.append(temp.upper())                              #   both
+                temp = imported_class.calculation_time                      #   lists
+                time_list.append(temp)                                      #   in
+                name_list = [name.encode('utf-8') for name in name_list]    #   plot
+                #endregion
+                self.show_histogram(name_list, time_list)
+
+            elif len(self.checkboxes) == 0 and self.user_class: # NO CBOX, YES USER
+                #region User
+                path = rospkg.RosPack().get_path('research')+'/scripts/algorithms' 
+                os.chdir(path)
+                if self.import_once:
+                    self.make_file(self.user_class) #import class in init.py file
+                full_name = "algorithms" + "." + self.user_class
+                path = rospkg.RosPack().get_path('research')+'/scripts' 
+                os.chdir(path)
+                data = self.get_dist_matrix()
+                path = rospkg.RosPack().get_path('research')+'/scripts' 
+                os.chdir(path)
+                print(os.getcwd())
+                module = importlib.import_module(full_name)
+                the_class = getattr(module, self.user_class.title())
+                imported_class = the_class(data)
+
+                name_list = []
+                time_list = []
+                temp = self.user_class                                      # Visualize 
+                name_list.append(temp.upper())                              #   both
+                temp = imported_class.calculation_time                      #   lists
+                time_list.append(temp)                                      #   in
+                name_list = [name.encode('utf-8') for name in name_list]    #   plot
+                #endregion
+                self.show_histogram(name_list, time_list)
+
+            elif not len(self.checkboxes) == 0 and not self.user_class: # YES CBOX, NO USER
+                #region Checkboxes
+                path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+                os.chdir(path) # Change directory
+                with open('run_algos.txt', 'w') as f:
+                    for elem in self.checkboxes:
+                        f.write("{}\n".format(elem))
+                
+                print("Running algorithms,", self.checkboxes)
+                os.chdir('..')
+                cur_path = os.getcwd()
+                os.chdir(cur_path + '/reusables')
+                data = []
+                with open("cost_matrix.csv") as f:
+                    reader = csv.reader(f)
+                    data = list(reader)
+                gl = Selector(data, self.checkboxes)
+
+                name_list = [name.name for name in gl.alg_list]         # To Visualize
+                time_list = [name.calc_time for name in gl.alg_list]    # the data in plot
+                #endregion
+                self.show_histogram(name_list, time_list)
             
     def move_robot(self):
         """Call MoveBase to start moving robot to the goal """
@@ -220,7 +275,11 @@ class TspGuiApp(App):
     def on_stop(self):
         """ Clear the init file when app stops """
         global wp
-        wp.reset_init_file()
+        path = rospkg.RosPack().get_path('research')+'/scripts/algorithms'
+        os.chdir(path)
+        if not wp.import_once:
+            wp.reset_init_file()
+
 
 if __name__ == '__main__':
     rospy.init_node('gui_node')
