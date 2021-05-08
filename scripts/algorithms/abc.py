@@ -13,7 +13,7 @@ class Abc(object):
     def __init__(self, distance_matrix):
         self.distance_matrix = distance_matrix
 
-        self.calculation_time = 0.004   
-        self._distance = 289           
+        self.calculation_time = 4.5
+        self._distance = 290 
         self.route = [0, 1, 2, 0]        
     
