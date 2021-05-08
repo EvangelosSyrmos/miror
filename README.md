@@ -1,6 +1,9 @@
 # Application for TSP algorithms
 This application was created having a main purpose to integrate Waypoints inside ROS visualized in Rviz,to run Google OR Tools build in TSP algorithms and One by the user.
 
+![tsp_gui](https://user-images.githubusercontent.com/38979158/117545808-0db7cc00-b030-11eb-85f6-eb2549e97779.png)
+
+![Matplotlib](https://user-images.githubusercontent.com/38979158/117545829-2aec9a80-b030-11eb-8644-37dfa2e00883.png)
 ## Description
 The user can type the number of waypoints the robot need to travel, but the first one has to be on the starting position of the robot (as a depot = starting / ending). Most TSP algorithms are included in the checkbox field. Optimizing algorihtms are also included in the gui.py in order to select which to run after the first solution has been given. The user can type the name of his algorithm inside the Text Input following some conventions.
 
