@@ -4,22 +4,22 @@ import imp
 from importlib import import_module
 from logging import info
 from PIL.Image import ROTATE_270
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.lang import Builder
+from utils.waypoints_class import Waypoints
+from utils.base_class import MoveBase
+from algorithms.google import Selector
+from kivy.core import text
+import matplotlib.pyplot as plt
 import kivy
 import os
 import sys
 import csv
 import time
 import importlib
-from kivy.core import text
 import rospy
 import rospkg
-from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.lang import Builder
-import matplotlib.pyplot as plt
-from utils.waypoints_class import Waypoints
-from utils.base_class import MoveBase
-from algorithms.google import Selector
 
 path = rospkg.RosPack().get_path('research')+'/scripts'+ '/TspGui.kv'
 Builder.load_file(path)
@@ -32,7 +32,7 @@ class WaypointWindow(BoxLayout):
         global gl
         global imported_class
 
-        #region Write empty file of aglos
+        #region Write empty file of algos
         path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
         os.chdir(path) # Change directory
         with open('run_algos.txt', 'w') as f:
@@ -67,13 +67,19 @@ class WaypointWindow(BoxLayout):
         with open(file_name, 'w') as f:
             f.write(self.old_file_imports)
 
-    def show_histogram(self, list1, list2):
+    def show_histogram(self, list1, list2, list3):
+        plt.figure()
+        plt.subplot(211)
         plt.barh(list1, list2)
         plt.grid(True)
         plt.xlabel("Seconds")
-        plt.title("Algorithm results")
-        plt.xticks(rotation = 45)
-        plt.yticks(rotation = 45)
+        plt.title("Computation time")
+        plt.subplot(212)
+        plt.barh(list1, list3)
+        plt.grid(True)
+        plt.xlabel("Meters")
+        plt.title("Route distance")
+        plt.tight_layout(pad=2.0)
         plt.show()
     
     def checkbox_click(self, instance, value, algo):
@@ -100,7 +106,6 @@ class WaypointWindow(BoxLayout):
         with open("cost_matrix.csv") as f:
             reader = csv.reader(f)
             data = list(reader)
-        print("The data is", data)
         return data
 
     def run_algorithms(self):
@@ -113,13 +118,7 @@ class WaypointWindow(BoxLayout):
         self.algo_info = self.ids.algo_info
         self.user_class = self.ids.user_class.text
 
-        if not self.user_class:
-            print("User class empty")
-        else:
-            print("User Full: {}".format(self.user_class))
-
         if len(self.checkboxes) == 0 and not self.user_class: #No Chechbox, No User
-            print("No Box, No User")
             #region Empty file
             path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
             os.chdir(path) # Change directory
@@ -149,6 +148,7 @@ class WaypointWindow(BoxLayout):
 
                 name_list = [name.name for name in gl.alg_list]         # To Visualize
                 time_list = [name.calc_time for name in gl.alg_list]    # the data in plot
+                distance_list = [name._distance for name in gl.alg_list]    #############
                 #endregion
 
                 #region User
@@ -162,7 +162,6 @@ class WaypointWindow(BoxLayout):
                 data = self.get_dist_matrix()
                 path = rospkg.RosPack().get_path('research')+'/scripts' 
                 os.chdir(path)
-                print(os.getcwd())
                 module = importlib.import_module(full_name)
                 the_class = getattr(module, self.user_class.title())
                 imported_class = the_class(data)
@@ -171,9 +170,11 @@ class WaypointWindow(BoxLayout):
                 name_list.append(temp.upper())                              #   both
                 temp = imported_class.calculation_time                      #   lists
                 time_list.append(temp)                                      #   in
+                temp = imported_class._distance                             ########
+                distance_list.append(temp)                                  ########
                 name_list = [name.encode('utf-8') for name in name_list]    #   plot
                 #endregion
-                self.show_histogram(name_list, time_list)
+                self.show_histogram(name_list, time_list, distance_list)
 
             elif len(self.checkboxes) == 0 and self.user_class: # NO CBOX, YES USER
                 #region User
@@ -187,20 +188,22 @@ class WaypointWindow(BoxLayout):
                 data = self.get_dist_matrix()
                 path = rospkg.RosPack().get_path('research')+'/scripts' 
                 os.chdir(path)
-                print(os.getcwd())
                 module = importlib.import_module(full_name)
                 the_class = getattr(module, self.user_class.title())
                 imported_class = the_class(data)
 
                 name_list = []
                 time_list = []
+                distance_list = []
                 temp = self.user_class                                      # Visualize 
                 name_list.append(temp.upper())                              #   both
                 temp = imported_class.calculation_time                      #   lists
                 time_list.append(temp)                                      #   in
+                temp = imported_class._distance                             ########
+                distance_list.append(temp)                                  ########
                 name_list = [name.encode('utf-8') for name in name_list]    #   plot
                 #endregion
-                self.show_histogram(name_list, time_list)
+                self.show_histogram(name_list, time_list, distance_list)
 
             elif not len(self.checkboxes) == 0 and not self.user_class: # YES CBOX, NO USER
                 #region Checkboxes
@@ -222,18 +225,33 @@ class WaypointWindow(BoxLayout):
 
                 name_list = [name.name for name in gl.alg_list]         # To Visualize
                 time_list = [name.calc_time for name in gl.alg_list]    # the data in plot
+                distance_list = [name._distance for name in gl.alg_list]    #########
                 #endregion
-                self.show_histogram(name_list, time_list)
+                self.show_histogram(name_list, time_list, distance_list)
             
     def move_robot(self):
         """Call MoveBase to start moving robot to the goal """
         global gl
         global mb
+        global imported_class
         self.run_info = self.ids.run_info
         if self.pressed_algo:
             self.run_info.text='[color=#0010FF]Route completed.[/color]'
-            mb = MoveBase(gl.get_best_path())
-            # mb = MoveBase(gl.routes)
+            try:
+                if self.user_class:
+                    if imported_class._distance < gl.best_distance:
+                        follow_route = imported_class.route
+                        print("Executing: {} route".format(self.user_class.upper()))
+                    else:
+                        follow_route = gl.best_distance.routes
+                        print("Executing: {} route".format(gl.best_distance.name))
+                else:
+                    print("Executing: {} route".format(gl.best_distance.name))
+                    follow_route = gl.best_distance.routes
+            except Exception as e:
+                pass
+            finally:
+                mb = MoveBase(follow_route)
         else:
             self.run_info.text='[color=#FF0000]Run algorithms first.[/color]'
 

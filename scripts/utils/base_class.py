@@ -5,7 +5,8 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from geometry_msgs.msg import Point, PoseWithCovarianceStamped
 import actionlib
 import rospy
-
+import rospkg
+import os
 
 class MoveBase():
     def __init__(self, routes):
@@ -23,7 +24,7 @@ class MoveBase():
         self.waypoints = self.get_waypoints()
         #endregion
         
-        # self.start_robot()
+        self.start_robot()
 
     def start_robot(self):
         """Move Robot in the Route list"""
@@ -38,9 +39,12 @@ class MoveBase():
     
     def _connect(self):
         ''' Connect with Move Base action Server '''
-        self._ac = actionlib.SimpleActionClient(self.__server, MoveBaseAction)
-        while not self._ac.wait_for_server(rospy.Duration.from_sec(5.0)):
-            rospy.loginfo("Waiting for Move Base Server...")
+        try:
+            self._ac = actionlib.SimpleActionClient(self.__server, MoveBaseAction)
+            while not self._ac.wait_for_server(rospy.Duration.from_sec(5.0)):
+                rospy.loginfo("Waiting for Move Base Server...")
+        except Exception as e:
+            print(e)
 
     def __amcl_cb(self, data):
         ''' Updates pose '''
@@ -70,6 +74,11 @@ class MoveBase():
 
     def get_waypoints(self):
         """Collect all the waypoint data from file"""
-        with open('waypoints_information.txt', 'r') as file:
-            l = [[float(num) for num in line.split(',')] for line in file]
+        try:
+            path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+            os.chdir(path)
+            with open('waypoints_information.txt', 'r') as file:
+                l = [[float(num) for num in line.split(',')] for line in file]
+        except Exception as e:
+            print(e)
         return l 

@@ -32,18 +32,7 @@ class Selector(object):
         # print("Best distance --> {}".format(self.best_distance))
         # print("Best time --> {}".format(self.best_timer))
         #endregion
-
-
-        
-    def get_best_path(self):
-        choices = [self.best_distance, self.best_timer]
-
-        if self.best_distance is self.best_timer:
-            return self.best_distance.routes
-        else:
-            return random.choice(choices)
-                
-
+              
 
 class Google(object):
     
@@ -57,7 +46,6 @@ class Google(object):
         #region Create Data model
         self.data = {}
         self.data['distance_matrix'] = temp
-        # print(self.data['distance_matrix'])
         self.data['num_vehicles'] = 1
         self.data['depot'] = 0
         #endregion
@@ -165,7 +153,6 @@ class Google(object):
             routes.append(route)
         return routes
     
-    # def __repr__(self):
-    #     output = repr(self.name)
-    #     # output = repr(self.name)+"__"+repr(self._distance)+"__"+repr(round(self.calc_time, 3))
-    #     return output
+    def __repr__(self):
+        output = repr(self.name)+"__"+repr(self._distance)+"__"+repr(round(self.calc_time, 3))
+        return output
