@@ -7,6 +7,18 @@ This application was created having a main purpose to integrate Waypoints inside
 ## Description
 The user can type the number of waypoints the robot need to travel, but the first one has to be on the starting position of the robot (as a depot = starting / ending). Most TSP algorithms are included in the checkbox field. Optimizing algorihtms are also included in the gui.py in order to select which to run after the first solution has been given. The user can type the name of his algorithm inside the Text Input following some conventions.
 
+## Local Search Strategies
+Local search strategies are enable inside ***scripts/algorithms/google.py*** for 5 sec. Feel free to change the duration or option for large scale problems.
+```python
+self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
+#self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.AUTOMATIC)
+#self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.GREEDY_DESCENT)
+#self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.SIMULATED_ANNEALING)
+#self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.TABU_SEARCH)
+#self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.OBJECTIVE_TABU_SEARCH)
+self.search_parameters.time_limit.seconds = 5
+
+```
 ## Conventions
 1<sup>st</sup> In order to add an algorithm the python file must be created in the ***scripts/algorithm*** folder.
 
