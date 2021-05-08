@@ -22,19 +22,18 @@ self.search_parameters.time_limit.seconds = 5
 ## Conventions
 1<sup>st</sup> In order to add an algorithm the python file must be created in the ***scripts/algorithm*** folder.
 
-2<sup>nd</sup> The file name must be identical to the class inside it, e.g. ***pso.py***.
+2<sup>nd</sup> The file name must be identical to the class inside it, e.g. ***abc.py***.
 
-3<sup>rd</sup> The class must have a route list with a getter function implemented accordingly.
+3<sup>rd</sup> The class must have a route list to store the waypoints accordingly.
 
 ```python
-class Pso(object):
+class Abc(object):
     def __init__(self, distance_matrix):
         self.distance_matrix = distance_matrix
-        self.route = []
-        
-    @property
-    def route(self):
-        return self.route
+        self.calculation_time = 4.5     # Float
+        self._distance = 290            # Float/Int
+        self.route = []                 # [0, 1, 2, 0] 
+
 ```
 ## Execution
 ROS Master Node:
