@@ -24,7 +24,7 @@ self.search_parameters.time_limit.seconds = 5
 
 2<sup>nd</sup> The file name must be identical to the class inside it, e.g. ***abc.py***.
 
-3<sup>rd</sup> The class must have a route list to store the waypoints accordingly.
+3<sup>rd</sup> The class must have a route list to store the waypoints, calculation time and route distance.
 
 ```python
 class Abc(object):
