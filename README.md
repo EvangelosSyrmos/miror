@@ -27,7 +27,7 @@ self.search_parameters.time_limit.seconds = 5
 3<sup>rd</sup> The class must have a route list to store the waypoints, calculation time and route distance.
 
 ```python
-class Abc(object):
+class Abc:
     def __init__(self, distance_matrix):
         self.distance_matrix = distance_matrix
         self.calculation_time = 4.5     # Float
