@@ -78,7 +78,7 @@ The following GIF shows the route of the best algorithm in the given test.
 
 
 ## Additional Information 
-Local search strategies (Metaheuristics) known as optimizing algorihtms are enable ***scripts/algorithms/google.py*** to run after the first solution has been given for 5 sec. Feel free to change the duration or option for large scale problems.
+Local search strategies (Metaheuristics) known as optimizing algorihtms are enabled to run for 5 sec after the first solution has been given located in ***scripts/algorithms/google.py***. Feel free to change the duration or option for large scale problems.
 
 ```python
 self.search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
