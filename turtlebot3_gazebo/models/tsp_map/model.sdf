@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <model name="tsp_map">
+    <pose>0 0 0 0 0 0</pose>
+    <static>true</static>
+    <link name="map_link">
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://tsp_map/meshes/tsp_map.stl</uri>
+            <scale>0.1 0.1 1</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="map_visual">
+        <material>
+          <script>
+            <name>MetalTexture</name>
+          </script>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://tsp_map/meshes/tsp_map.stl</uri>
+            <scale>0.1 0.1 0.5</scale>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
