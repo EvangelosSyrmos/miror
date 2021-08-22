@@ -91,4 +91,4 @@ self.search_parameters.time_limit.seconds = 5
 
 ```
 ## MIT License
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
