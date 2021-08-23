@@ -1,4 +1,4 @@
-# MIROR - Mobile industrial robots and optimal routing tool
+# MIROR - Mobile Industrial Robots with Optimal Routing algorithms
 ![Screenshot_1](https://user-images.githubusercontent.com/38979158/129700367-97a27572-2013-4730-ad05-e434afdcd792.png)
 
 This application was developed ion order to create a sophisticated testing environment that applies routing optimization algorithms that solve the Travelling Salesman Problem to industial facility layouts, compares the results of the algorithmic outcomes and informs the effective and efficient routing solution. It is integrated with ROS, a robotic framework that provides tools such as Rviz for visualization, Gazebo 3D a simulation physics engine and Google OR an optimization suite that provides build-in algorithms that solve complex problems.
