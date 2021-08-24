@@ -146,7 +146,7 @@ self.search_parameters.time_limit.seconds = 5
 ```
 ## Authors
 
-- [@EvangelosSyrmos](https://github.com/EvangelosSyrmos)
+[@EvangelosSyrmos](https://github.com/EvangelosSyrmos)
 
   
 ## Support
