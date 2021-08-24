@@ -33,7 +33,7 @@ git clone git@github.com:EvangelosSyrmos/research.git
 ```
 **Move the `turtlebot3_gazebo` folder provided by MIROR in the `catkin_ws/src`.**
 
-To build the workspace and the type:
+Build the workspace:
 ```bash
 cd ..
 catkin_make
