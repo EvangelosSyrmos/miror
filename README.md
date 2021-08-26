@@ -33,6 +33,8 @@ git clone https://github.com/EvangelosSyrmos/miror.git
 ```
 **Move the `turtlebot3_gazebo` folder provided by MIROR in the `catkin_ws/src`.**
 
+![Directory](https://user-images.githubusercontent.com/38979158/131008640-5e33c239-3d41-4860-9b92-0ef965ee4178.jpg)
+
 Make the ***gui.py*** executable.
 ```bash
 cd catkin_ws/src/miror/scripts
@@ -89,7 +91,7 @@ To insert waypoints in Rviz, the steps are as follows:
 ### Import and execute custom algorithms
 To import a custom algorithm and assess the performance in comparison to the provided some conventions must be followed.
 #### Conventions:
-- Create the python file in the specific directory `catkin_ws/src/research/scripts/algorithm/` folder.
+- Create the python file in the specific directory `catkin_ws/src/miror/scripts/algorithm/` folder.
 - The python file name must be identical to the class inside, e.g. ***abc.py***.
 - The class must have a route list to store the waypoints, calculation time and route distance.
 ```python
@@ -137,7 +139,7 @@ To import a custom map follow the instructions [GazeboSim](http://gazebosim.org/
 ```bash
 rosrun map_server map_saver -f map
 ```
-- Move the generated files `map.pgm` and `map.yaml` to `research/maps` and rename the old ones.
+- Move the generated files `map.pgm` and `map.yaml` to `miror/maps` and rename the old ones.
 
 #### Local Search Metaheuristics
 Local search strategies (Metaheuristics) known as optimizing algorihtms are enabled to run for 5 sec after the first solution has been given located in ***scripts/algorithms/google.py***.
