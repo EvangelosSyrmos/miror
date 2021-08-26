@@ -18,8 +18,8 @@ It is integrated with ROS, a robotic framework that provides tools such as Rviz 
 - [Ubuntu 18.04 LTS](https://releases.ubuntu.com/18.04.5/)
 - [ROS Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
 - [Turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3)
-- [Kivy v1.9.1](https://pypi.org/project/Kivy/1.9.1/)
-- [Matplotlib](https://pypi.org/project/matplotlib/)
+- [Kivy v1.9.1](https://www.howtoinstall.me/ubuntu/18-04/python-kivy/?fbclid=IwAR2JdMpdZegsC4WiJiu6_scR_qG5Lbo7W10AqQlQFFBzvSj0xM7v2bW6FzQ)
+- [OR tools] `pip install ortools`
 
 
 ## Installation
