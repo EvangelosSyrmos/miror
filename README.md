@@ -19,7 +19,7 @@ It is integrated with ROS, a robotic framework that provides tools such as Rviz 
 - [ROS Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
 - [Turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3)
 - [Kivy v1.9.1](https://www.howtoinstall.me/ubuntu/18-04/python-kivy/?fbclid=IwAR2JdMpdZegsC4WiJiu6_scR_qG5Lbo7W10AqQlQFFBzvSj0xM7v2bW6FzQ)
-- [OR tools] `pip install ortools`
+- Install OR Tools `pip install ortools`
 
 
 ## Installation
@@ -33,9 +33,16 @@ git clone git@github.com:EvangelosSyrmos/research.git
 ```
 **Move the `turtlebot3_gazebo` folder provided by MIROR in the `catkin_ws/src`.**
 
+Make the ***gui.py*** executable.
+```bash
+cd catkin_ws/src/miror/scripts
+chmod +x gui.py
+cd
+```
+
 Build the workspace:
 ```bash
-cd ..
+cd catkin_ws
 catkin_make
 ```
 
