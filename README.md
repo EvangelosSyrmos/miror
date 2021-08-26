@@ -29,7 +29,7 @@ Clone the latest version into your catkin workspace and compile the package usin
 
 ```bash
 cd catkin_ws/src
-git clone git@github.com:EvangelosSyrmos/research.git
+git clone https://github.com/EvangelosSyrmos/miror.git
 ```
 **Move the `turtlebot3_gazebo` folder provided by MIROR in the `catkin_ws/src`.**
 
