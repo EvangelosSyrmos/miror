@@ -21,7 +21,7 @@ import importlib
 import rospy
 import rospkg
 
-path = rospkg.RosPack().get_path('research')+'/scripts'+ '/TspGui.kv'
+path = rospkg.RosPack().get_path('miror')+'/scripts'+ '/TspGui.kv'
 Builder.load_file(path)
 
 class WaypointWindow(BoxLayout):
@@ -33,7 +33,7 @@ class WaypointWindow(BoxLayout):
         global imported_class
 
         #region Write empty file of algos
-        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+        path = rospkg.RosPack().get_path('miror')+'/scripts/utils/reusables' # Find the ROS Package Path
         os.chdir(path) # Change directory
         with open('run_algos.txt', 'w') as f:
             f.write("")
@@ -100,7 +100,7 @@ class WaypointWindow(BoxLayout):
 
     def get_dist_matrix(self):
         """ Reads the distance matrix"""
-        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' 
+        path = rospkg.RosPack().get_path('miror')+'/scripts/utils/reusables' 
         os.chdir(path)
         data = []
         with open("cost_matrix.csv") as f:
@@ -120,7 +120,7 @@ class WaypointWindow(BoxLayout):
 
         if len(self.checkboxes) == 0 and not self.user_class: #No Chechbox, No User
             #region Empty file
-            path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+            path = rospkg.RosPack().get_path('miror')+'/scripts/utils/reusables' # Find the ROS Package Path
             os.chdir(path) # Change directory
             with open('run_algos.txt', 'w') as f:
                 f.write("")
@@ -130,7 +130,7 @@ class WaypointWindow(BoxLayout):
             self.pressed_algo = True
             if not len(self.checkboxes) == 0 and self.user_class: # YES CBOX, YES USER
                 #region Checkboxes
-                path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+                path = rospkg.RosPack().get_path('miror')+'/scripts/utils/reusables' # Find the ROS Package Path
                 os.chdir(path) # Change directory
                 with open('run_algos.txt', 'w') as f:
                     for elem in self.checkboxes:
@@ -152,15 +152,15 @@ class WaypointWindow(BoxLayout):
                 #endregion
 
                 #region User
-                path = rospkg.RosPack().get_path('research')+'/scripts/algorithms' 
+                path = rospkg.RosPack().get_path('miror')+'/scripts/algorithms' 
                 os.chdir(path)
                 if self.import_once:
                     self.make_file(self.user_class) #import class in init.py file
                 full_name = "algorithms" + "." + self.user_class
-                path = rospkg.RosPack().get_path('research')+'/scripts' 
+                path = rospkg.RosPack().get_path('miror')+'/scripts' 
                 os.chdir(path)
                 data = self.get_dist_matrix()
-                path = rospkg.RosPack().get_path('research')+'/scripts' 
+                path = rospkg.RosPack().get_path('miror')+'/scripts' 
                 os.chdir(path)
                 module = importlib.import_module(full_name)
                 the_class = getattr(module, self.user_class.title())
@@ -178,15 +178,15 @@ class WaypointWindow(BoxLayout):
 
             elif len(self.checkboxes) == 0 and self.user_class: # NO CBOX, YES USER
                 #region User
-                path = rospkg.RosPack().get_path('research')+'/scripts/algorithms' 
+                path = rospkg.RosPack().get_path('miror')+'/scripts/algorithms' 
                 os.chdir(path)
                 if self.import_once:
                     self.make_file(self.user_class) #import class in init.py file
                 full_name = "algorithms" + "." + self.user_class
-                path = rospkg.RosPack().get_path('research')+'/scripts' 
+                path = rospkg.RosPack().get_path('miror')+'/scripts' 
                 os.chdir(path)
                 data = self.get_dist_matrix()
-                path = rospkg.RosPack().get_path('research')+'/scripts' 
+                path = rospkg.RosPack().get_path('miror')+'/scripts' 
                 os.chdir(path)
                 module = importlib.import_module(full_name)
                 the_class = getattr(module, self.user_class.title())
@@ -207,7 +207,7 @@ class WaypointWindow(BoxLayout):
 
             elif not len(self.checkboxes) == 0 and not self.user_class: # YES CBOX, NO USER
                 #region Checkboxes
-                path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+                path = rospkg.RosPack().get_path('miror')+'/scripts/utils/reusables' # Find the ROS Package Path
                 os.chdir(path) # Change directory
                 with open('run_algos.txt', 'w') as f:
                     for elem in self.checkboxes:
@@ -293,7 +293,7 @@ class TspGuiApp(App):
     def on_stop(self):
         """ Clear the init file when app stops """
         global wp
-        path = rospkg.RosPack().get_path('research')+'/scripts/algorithms'
+        path = rospkg.RosPack().get_path('miror')+'/scripts/algorithms'
         os.chdir(path)
         if not wp.import_once:
             wp.reset_init_file()

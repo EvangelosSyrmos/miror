@@ -1,6 +1,6 @@
 <launch>
     <!-- Arguments -->
-    <arg name="map_file" default="$(find research)/maps/map.yaml"/>
+    <arg name="map_file" default="$(find miror)/maps/map.yaml"/>
     <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
     <arg name="open_rviz" default="true"/>
     <arg name="move_forward_only" default="false"/>
@@ -25,6 +25,6 @@
     <!-- rviz -->
     <group if="$(arg open_rviz)"> 
         <node pkg="rviz" type="rviz" name="rviz" required="true"
-            args="-d $(find research)/rviz/tsp.rviz"/>
+            args="-d $(find miror)/rviz/tsp.rviz"/>
     </group>
 </launch>

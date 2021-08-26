@@ -56,7 +56,7 @@ class Waypoints(object):
         '''
         Save Waypoints : ID, X, Y
         '''
-        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+        path = rospkg.RosPack().get_path('miror')+'/scripts/utils/reusables' # Find the ROS Package Path
         os.chdir(path) # Change directory
 
         #region Save in TXT {ID, X, Y} 
@@ -188,7 +188,7 @@ class Waypoints(object):
         '''
         Dump the cost matrix from all the Waypoints in order
         '''
-        path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+        path = rospkg.RosPack().get_path('miror')+'/scripts/utils/reusables' # Find the ROS Package Path
         os.chdir(path) # Change directory
 
         #region Format cost matrix as diagonal

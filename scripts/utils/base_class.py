@@ -75,7 +75,7 @@ class MoveBase():
     def get_waypoints(self):
         """Collect all the waypoint data from file"""
         try:
-            path = rospkg.RosPack().get_path('research')+'/scripts/utils/reusables' # Find the ROS Package Path
+            path = rospkg.RosPack().get_path('miror')+'/scripts/utils/reusables' # Find the ROS Package Path
             os.chdir(path)
             with open('waypoints_information.txt', 'r') as file:
                 l = [[float(num) for num in line.split(',')] for line in file]
