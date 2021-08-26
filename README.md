@@ -56,13 +56,13 @@ roslaunch turtlebot3_gazebo tsp_world.launch
 Start ROS Navigation launch file
 
 ```bash
-roslaunch research tsp_navigation.launch
+roslaunch miror tsp_navigation.launch
 ```
 
 Start MIROR:
 
 ```bash
-roslaunch research tsp_gui.launch
+roslaunch miror tsp_gui.launch
 ```
 
 
