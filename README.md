@@ -1,4 +1,4 @@
-# MIROR - Mobile Industrial Robots with Optimal Routing algorithms
+# MIRΟR - A Middleware Software Tool for Interfacing Mobile Industrial Robots with Optimization Routing Algorithms
 ![Landing Photo](https://user-images.githubusercontent.com/38979158/130687780-37381a41-d802-46c6-95ef-2d457f621d88.jpg)
 
 
