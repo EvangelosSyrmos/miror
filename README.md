@@ -155,9 +155,13 @@ self.search_parameters.time_limit.seconds = 5
 ```
 ## Authors
 
-[@EvangelosSyrmos](https://github.com/EvangelosSyrmos)
+- [Evangelos Syrmos](https://github.com/EvangelosSyrmos)
 
-  
+- Dimitrios Bechtsis
+
+- Naoum Tsolakis
+
+
 ## Support
 
 For support, email me at evangelossyrmos@gmail.com
