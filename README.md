@@ -47,7 +47,7 @@ Build the workspace:
 cd catkin_ws
 catkin_make
 ```
-
+***!If errors occur during the execution of `catkin_make` install any required packages missing from the ROS installation process.***
 ## Run MIROR
 
 Start ROS Master node
